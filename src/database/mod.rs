@@ -1,4 +1,4 @@
-//! Sdk for deta-base service.
+//! Deta-base service SDK.
 //! Check [deta docs](https://docs.deta.sh/docs/base/http) for more information.
 
 use crate::constants;

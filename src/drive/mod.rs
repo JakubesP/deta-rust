@@ -1,4 +1,4 @@
-//! Sdk for deta-drive service.
+//! Deta-drive service SDK.
 //! Check [deta docs](https://docs.deta.sh/docs/drive/http) for more information.
 
 use crate::deta_client::DetaClient;
