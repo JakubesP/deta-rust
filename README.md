@@ -8,7 +8,7 @@ The Deta-Rust is a simple unofficial rust lang SDK for the [Deta](https://www.de
 
 ⚠️ This package is still under active development, so there will be many modifications and improvements ⚠️
 
-Take a look at the examples to get you started quickly. See the [documentation](https://docs.rs/deta_rust/latest/dets_rust/) for details.
+Take a look at the examples to get you started quickly. See the [documentation](https://docs.rs/deta_rust/latest/deta_rust/) for details.
 
 Have fun 😀
 
