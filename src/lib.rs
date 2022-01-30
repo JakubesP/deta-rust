@@ -1,6 +1,6 @@
 //! The [Deta-Rust](https://github.com/JakubesP/deta-rust) is a simple unofficial [Deta](https://www.deta.sh/) SDK for Rust lang.
 //! 
-//! You can see [examples](https://github.com/JakubesP/deta-rust) to get you started more quickly.
+//! You can see [examples](https://github.com/JakubesP/deta-rust/tree/main/examples) to get you started more quickly.
 //!
 //! Have fun 😀
 
