@@ -6,10 +6,11 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![crates.io](https://img.shields.io/crates/v/deta_rust.svg)](https://crates.io/crates/deta_rust)
+[![Documentation](https://docs.rs/deta_rust/badge.svg)](https://docs.rs/deta_rust)
 
 The Deta-Rust is a simple unofficial [Deta](https://www.deta.sh/) SDK for Rust lang.
 
-⚠️ This package is still under active development, so there will be many modifications and improvements ⚠️
+⚠️ This package is still under active development, so there will be many modifications and improvements. Expect breaking changes ⚠️
 
 Take a look at the [examples](https://github.com/JakubesP/deta-rust/tree/main/examples) to get you started quickly. See the [documentation](https://docs.rs/deta_rust/latest/deta_rust/) for details.
 

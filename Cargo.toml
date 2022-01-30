@@ -1,6 +1,6 @@
 [package]
 name = "deta_rust"
-version = "0.1.7"
+version = "0.1.8"
 authors = ["Jakub Padlo"]
 edition = "2021"
 description = "The unofficial Deta SDK for Rust lang"
@@ -11,7 +11,6 @@ readme = "README.md"
 
 [dependencies]
 reqwest = { version = "0.11.8", features = ["json", "stream"] }
-tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0.94", features = ["derive"]  }
 serde_json = "1.0.40"
 bytes = "1.1.0"
@@ -21,3 +20,4 @@ thiserror = "1.0.30"
 dotenv = "0.15.0"
 lazy_static = "1.4.0"
 serial_test = "0.5.1"
+tokio = { version = "1", features = ["full"] }
