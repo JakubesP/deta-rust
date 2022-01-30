@@ -12,14 +12,6 @@ Take a look at the examples to get you started quickly. See the [documentation](
 
 Have fun 😀
 
-## Instalation
-
-Add the following entry to Cargo.toml:
-
-```toml
-deta_rust="0.1.0"
-```
-
 ## Testing
 
 **Unit tests:**
