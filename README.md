@@ -6,11 +6,11 @@
 
 The Deta-Rust is a simple unofficial rust lang SDK for the [Deta](https://www.deta.sh/).
 
-:warning: This package is still under active development, so there will be many modifications and improvements :warning:
+⚠️ This package is still under active development, so there will be many modifications and improvements ⚠️
 
 Take a look at the examples to get you started quickly. See the [documentation](https://docs.rs/deta_rust/latest/dets_rust/) for details.
 
-Have fun :grinning:
+Have fun 😀
 
 ## Instalation
 
@@ -44,7 +44,7 @@ cargo test --test database
 cargo test --test drive
 ```
 
-:warning: Note, make sure that the database or drive under test does not contain any relevant data :warning:
+⚠️ Note, make sure that the database or drive under test does not contain any relevant data ⚠️
 
 ## License
 
