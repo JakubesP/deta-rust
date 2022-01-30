@@ -1,0 +1,22 @@
+[package]
+name = "deta_rust"
+version = "0.1.0"
+authors = ["Jakub Padlo"]
+edition = "2021"
+description = "Unofficial rust lang SDK for Deta"
+repository = "https://github.com/JakubesP/deta-rust"
+homepage = "https://github.com/JakubesP/deta-rust"
+license = "MIT"
+
+[dependencies]
+reqwest = { version = "0.11.8", features = ["json", "stream"] }
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1.0.94", features = ["derive"]  }
+serde_json = "1.0.40"
+bytes = "1.1.0"
+thiserror = "1.0.30"
+
+[dev-dependencies]
+dotenv = "0.15.0"
+lazy_static = "1.4.0"
+serial_test = "0.5.1"
