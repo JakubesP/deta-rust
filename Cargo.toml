@@ -7,6 +7,7 @@ description = "Unofficial rust lang SDK for Deta"
 repository = "https://github.com/JakubesP/deta-rust"
 homepage = "https://github.com/JakubesP/deta-rust"
 license = "MIT"
+readme = "README.md"
 
 [dependencies]
 reqwest = { version = "0.11.8", features = ["json", "stream"] }
