@@ -5,7 +5,7 @@
 <br>
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![crates.io](https://img.shields.io/crates/v/deta_rust.svg)](https://crates.io/crates/reqwest)
+[![crates.io](https://img.shields.io/crates/v/deta_rust.svg)](https://crates.io/crates/deta_rust)
 
 The Deta-Rust is a simple unofficial rust lang SDK for the [Deta](https://www.deta.sh/).
 
