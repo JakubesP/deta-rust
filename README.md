@@ -12,7 +12,7 @@ The Deta-Rust is a simple unofficial [Deta](https://www.deta.sh/) SDK for Rust l
 
 ⚠️ This package is still under active development, so there will be many modifications and improvements. Expect breaking changes ⚠️
 
-Please feel free to write about problems or suggestions for further development of the project.
+Feel free to write me if you discovered any problems with the package, or if you have any questions. I am also open to suggestions. 
 
 Take a look at the [examples](https://github.com/JakubesP/deta-rust/tree/main/examples) to get you started quickly. See the [documentation](https://docs.rs/deta_rust/latest/deta_rust/) for details.
 
