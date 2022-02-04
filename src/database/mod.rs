@@ -6,9 +6,10 @@ use crate::deta_client::DetaClient;
 use crate::error::Result;
 use crate::utils;
 use serde::de::DeserializeOwned;
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 pub mod models;
 mod requests;
+pub mod updates;
 
 /// Stores the necessary information and methods to
 /// work with the [deta-base](https://docs.deta.sh/docs/base/http) api.
@@ -82,9 +83,11 @@ impl Database {
     /// Performs a query request to retrieve a list of items.
     /// For now, filtering is done by passing the query argument as a slice of the raw json
     /// (each item in the given collection is a single case of "or").
-    /// The JSON is represented by the [serde_json::Value](serde_json::Value) type.
-    /// You can use the [json!](serde_json::json) macro to create such a value).
-    /// There may be changes to this method, to a more "high-level" approach.
+    /// The JSON is represented by the [`serde_json::Value`](serde_json::Value) type.
+    /// You can use the [`json!`](serde_json::json) macro to create such a value).
+    /// 
+    /// **WARNING!** The current solution is temporary will be changed!
+    /// 
     /// Check [deta docs](https://docs.deta.sh/docs/base/sdk/#queries) for more information.
     pub async fn fetch_items<T>(
         &self,
@@ -102,31 +105,18 @@ impl Database {
     }
 
     /// Updates an item with the specified key.
-    /// Temporarily, modifications are specified by the [`ItemUpdates`](struct@ItemUpdates) type,
-    /// which allows you to specify each modification option as raw json ([serde_json::Value](serde_json::Value)).
-    /// It is envisaged that this will be upgraded to a more 'high level' form.
+    /// The updates are described by the [`Updates`](updates::Updates) type.
     /// Check [deta docs](https://docs.deta.sh/docs/base/sdk/#update-operations) for more information.
     pub async fn update_item(
         &self,
         key: &str,
-        updates: &ItemUpdates,
+        updates: updates::Updates,
     ) -> Result<models::UpdateItem> {
         let response_result =
-            requests::update_item_request(&self.base_url, &self.x_api_key, key, updates).await;
+            requests::update_item_request(&self.base_url, &self.x_api_key, key, updates.render()?)
+                .await;
 
         let response = response_result?;
         utils::parse_response_body(response).await
     }
-}
-
-/// An object of this type allows you to specify options for [modifying an item](function@Database::update_item) in the database.
-/// It is planned to change or expand the current solution in the near future.
-/// Check [deta docs](https://docs.deta.sh/docs/base/sdk/#update-operations) for more information.
-#[derive(Serialize, Deserialize, Clone, Debug)]
-pub struct ItemUpdates {
-    pub set: Option<serde_json::Value>,
-    pub increment: Option<serde_json::Value>,
-    pub append: Option<serde_json::Value>,
-    pub prepend: Option<serde_json::Value>,
-    pub delete: Option<serde_json::Value>,
 }

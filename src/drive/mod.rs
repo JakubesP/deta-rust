@@ -112,7 +112,7 @@ impl Drive {
         ))
     }
 
-    /// Returns a raw data as type [bytes::Bytes](bytes::Bytes).
+    /// Returns a raw data as type [`bytes::Bytes`](bytes::Bytes).
     pub async fn get_file_as_buffer(&self, name: &str) -> Result<Option<bytes::Bytes>> {
         let response_result =
             requests::get_file_request(&self.base_url, &self.x_api_key, name).await;
@@ -128,7 +128,7 @@ impl Drive {
         Ok(Some(bytes))
     }
 
-    /// Returns a raw data as type Vec<u8>.
+    /// Returns a raw data as type `Vec<u8>`.
     pub async fn get_file_as_u8_vec(&self, name: &str) -> Result<Option<Vec<u8>>> {
         let bytes = self.get_file_as_buffer(name).await?;
         if bytes.is_none() {

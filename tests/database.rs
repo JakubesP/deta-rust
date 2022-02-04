@@ -1,7 +1,10 @@
 //! The following integration tests are designed to quickly make sure that SDK is compatible with the API.
 
 use deta_rust::{
-    database::{self, Database},
+    database::{
+        updates::{Action, Updates},
+        Database,
+    },
     serde_json::json,
     DetaClient,
 };
@@ -182,17 +185,11 @@ async fn fetch_items_with_limit() {
 async fn update_item() {
     setup_items().await;
 
-    let updates = database::ItemUpdates {
-        append: None,
-        delete: None,
-        increment: None,
-        prepend: None,
-        set: Some(json!({
-            "sample_item": "another_value"
-        })),
-    };
+    let updates = Updates::init().add("some_field", Action::set("some_value"));
 
-    DATABASE.update_item(TEST_KEY, &updates).await.unwrap();
+    let update_result = DATABASE.update_item(TEST_KEY, updates).await.unwrap();
+    let result_set_section = &update_result.set.expect("Set section is none");
+    assert_eq!(result_set_section, &json!({ "some_field": "some_value" }));
 
     clean().await;
 }
@@ -201,16 +198,10 @@ async fn update_item() {
 #[should_panic(expected = "Error occurred")]
 #[serial]
 async fn update_nonexistent_item() {
-    let updates = database::ItemUpdates {
-        append: None,
-        delete: None,
-        increment: None,
-        prepend: None,
-        set: None,
-    };
+    let updates = Updates::init().add("some_field", Action::set("some_value"));
 
     DATABASE
-        .update_item("nonexistent_key", &updates)
+        .update_item("nonexistent_key", updates)
         .await
         .expect("Error occurred");
 }

@@ -63,7 +63,7 @@ impl Error {
         matches!(self.kind, Kind::DataDeserialization)
     }
 
-    /// Returns a reference to the `Kind` enum.
+    /// Returns a reference to the [`Kind`](Kind) enum.
     pub fn get_kind(&self) -> &Kind {
         &self.kind
     }
@@ -140,8 +140,6 @@ impl std::fmt::Display for Error {
         }
     }
 }
-
-// --------------------------------------------------------------------------------
 
 /// Body for the responses of stasus 400 or 404.
 #[derive(Serialize, Deserialize, Debug)]

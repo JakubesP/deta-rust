@@ -2,7 +2,6 @@ use crate::error::Result;
 use crate::utils::send_request;
 use serde::Serialize;
 use serde_json::json;
-use super::ItemUpdates;
 
 pub async fn put_items_request<T>(
     base_url: &str,
@@ -83,12 +82,12 @@ pub async fn update_item_request(
     base_url: &str,
     x_api_key: &str,
     key: &str,
-    updates: &ItemUpdates,
+    updates: serde_json::Value,
 ) -> Result<reqwest::Response> {
     let request = reqwest::Client::new()
         .patch(format!("{}/items/{}", base_url, key))
         .header("X-Api-Key", x_api_key)
-        .json(updates);
+        .json(&updates);
 
     send_request(request).await
 }
