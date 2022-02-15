@@ -7,7 +7,9 @@ use crate::error::Result;
 use crate::utils;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
+mod common;
 pub mod models;
+pub mod query;
 mod requests;
 pub mod updates;
 
@@ -80,27 +82,33 @@ impl Database {
         utils::parse_response_body(response).await
     }
 
-    /// Performs a query request to retrieve a list of items.
-    /// For now, filtering is done by passing the query argument as a slice of the raw json
-    /// (each item in the given collection is a single case of "or").
-    /// The JSON is represented by the [`serde_json::Value`](serde_json::Value) type.
-    /// You can use the [`json!`](serde_json::json) macro to create such a value).
-    /// 
-    /// **WARNING!** The current solution is temporary will be changed!
-    /// 
+    /// Fetch items for database.
+    /// The `query` value is described by the [`Query`](query::Query) type.
     /// Check [deta docs](https://docs.deta.sh/docs/base/sdk/#queries) for more information.
     pub async fn fetch_items<T>(
         &self,
         limit: Option<u32>,
         last: Option<&str>,
-        query: Option<&[serde_json::Value]>,
+        query: Option<query::Query>,
     ) -> Result<models::FetchItems<T>>
     where
         T: DeserializeOwned,
     {
-        let response =
-            requests::query_items_request(&self.base_url, &self.x_api_key, limit, last, query)
-                .await?;
+        let query_value;
+        if let Some(query) = query {
+            query_value = Some(query.render()?);
+        } else {
+            query_value = None;
+        }
+
+        let response = requests::query_items_request(
+            &self.base_url,
+            &self.x_api_key,
+            limit,
+            last,
+            query_value,
+        )
+        .await?;
         utils::parse_response_body(response).await
     }
 

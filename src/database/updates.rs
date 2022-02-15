@@ -1,21 +1,15 @@
 //! Tools for defining updates to be performed on an item in the database.
 
+use super::common::{JsonValue, StringValue};
 use serde::Serialize;
-use std::borrow::Cow;
 use std::collections::HashMap;
 use std::convert::Into;
 
-/// Alias for `Cow<'static, str>`.
-/// Using `Cow` in updates context instead of the usual String helps avoid unnecessary copies of data.
-pub type Key = Cow<'static, str>;
-
-type JsonValue = serde_json::Value;
-
-pub(crate) type UpdatesSchemaSet = HashMap<Key, JsonValue>;
-pub(crate) type UpdatesSchemaIncrement = HashMap<Key, i32>;
-pub(crate) type UpdatesSchemaAppend = HashMap<Key, Vec<JsonValue>>;
-pub(crate) type UpdatesSchemaPrepend = HashMap<Key, Vec<JsonValue>>;
-pub(crate) type UpdatesSchemaDelete = Vec<Key>;
+pub(crate) type UpdatesSchemaSet = HashMap<StringValue, JsonValue>;
+pub(crate) type UpdatesSchemaIncrement = HashMap<StringValue, f64>;
+pub(crate) type UpdatesSchemaAppend = HashMap<StringValue, Vec<JsonValue>>;
+pub(crate) type UpdatesSchemaPrepend = HashMap<StringValue, Vec<JsonValue>>;
+pub(crate) type UpdatesSchemaDelete = Vec<StringValue>;
 
 // An intermediate structure in building the final JSON value, based on updates to be made.
 #[derive(Serialize, Debug, PartialEq)]
@@ -48,7 +42,7 @@ pub enum Action {
     Set(JsonValue),
 
     /// The attribute to be incremented. Increment value can be negative.
-    Increment(i32),
+    Increment(f64),
 
     /// The attribute to append a values to.
     Append(Vec<JsonValue>),
@@ -70,8 +64,11 @@ impl Action {
         Ok(Self::Set(serde_value))
     }
 
-    pub fn increment(value: i32) -> Self {
-        Self::Increment(value)
+    pub fn increment<T>(value: T) -> Self
+    where
+        T: Into<f64>,
+    {
+        Self::Increment(value.into())
     }
 
     pub fn append<T>(value: T) -> serde_json::Result<Self>
@@ -125,7 +122,7 @@ impl Action {
     // Consumes the specified action variant and inserts this value of type `UpdatesSchema`.
     pub(crate) fn render<'a>(
         self,
-        key: Key,
+        key: StringValue,
         mut target: UpdatesSchema,
     ) -> serde_json::Result<UpdatesSchema> {
         match self {
@@ -183,7 +180,7 @@ impl From<Action> for serde_json::Result<Action> {
     }
 }
 
-type PartialActions = Vec<(Key, serde_json::Result<Action>)>;
+type PartialActions = Vec<(StringValue, serde_json::Result<Action>)>;
 
 /// Builder type to build a list of updates to perform.
 pub struct Updates {
@@ -202,9 +199,9 @@ impl Updates {
     /// Both `Action` and `serde_json::Result<Action>` types can be specified as `action` parameters.
     /// This allows the deserialisation error handling to be postponed.
     ///
-    /// **NOTE:** If you multiple add the same action types to execute for the same key,
+    /// **NOTE:** If you multiple add the same action types to execute for the same StringValue,
     /// the new action will overwrite the old one.
-    /// 
+    ///
     /// Remember that the [`Action::append`](Action::append),
     /// [`Action::append_many`](ction::append_many) and
     /// [`Action::prepend`](Action::prepend),
@@ -212,7 +209,7 @@ impl Updates {
     /// methods generate a common action variants: [`Action::Append`](Action::Append) and [`Action::Prepend`](Action::Prepend).
     pub fn add<T, D>(mut self, attr: T, action: D) -> Self
     where
-        T: Into<Key>,
+        T: Into<StringValue>,
         D: Into<serde_json::Result<Action>>,
     {
         self.actions.push((attr.into(), action.into()));
@@ -252,39 +249,28 @@ mod tests {
             .render()
             .expect("Render failed");
 
-        // Construct expected_target
-        let mut set_section = HashMap::<Key, JsonValue>::new();
-        set_section.insert("profile.active".into(), true.into());
-        set_section.insert("profile.age".into(), 33.into());
-        set_section.insert("profile.email".into(), "jimmy@deta.sh".into());
+        let expected_target = serde_json::json!({
+            "set": {
+                "profile.active": true,
+                "profile.age": 33,
+                "profile.email": "jimmy@deta.sh"
+            },
+            "increment": {
+                "count": 1.,
+                "purchases": 2.,
+            },
+            "append": {
+                "likes": ["ramen", "jimmy"],
+                "clients": ["jacob"]
+            },
+            "prepend": {
+                "watchers": ["mark"],
+                "fans": ["alex"]
+            },
+            "delete": ["profile.hometown", "age"]
+        });
 
-        let mut increment_section = HashMap::<Key, i32>::new();
-        increment_section.insert("count".into(), 1);
-        increment_section.insert("purchases".into(), 2);
-
-        let mut append_section = HashMap::<Key, Vec<JsonValue>>::new();
-        append_section.insert("likes".into(), vec!["ramen".into(), "jimmy".into()]);
-        append_section.insert("clients".into(), vec!["jacob".into()]);
-
-        let mut prepend_section = HashMap::<Key, Vec<JsonValue>>::new();
-        prepend_section.insert("watchers".into(), vec!["mark".into()]);
-        prepend_section.insert("fans".into(), vec!["alex".into()]);
-
-        let mut delete_section = Vec::<Key>::new();
-        delete_section.push("profile.hometown".into());
-        delete_section.push("age".into()); // ???
-
-        let expected_target = serde_json::to_value(UpdatesSchema {
-            set: Some(set_section),
-            increment: Some(increment_section),
-            append: Some(append_section),
-            prepend: Some(prepend_section),
-            delete: Some(delete_section),
-        })
-        .expect("Convert UpdatesSchema to JSON failed");
-
-        // Compare
-        assert_eq!(target, expected_target);
+        assert_eq!(target, expected_target)
     }
 
     #[test]
@@ -300,27 +286,21 @@ mod tests {
             .render()
             .expect("Render failed");
 
-        // Construct expected_target
-        let mut set_section = HashMap::<Key, JsonValue>::new();
-        set_section.insert("count".into(), 7.into());
-        set_section.insert("profile.age".into(), 57.into());
+        let expected_target = serde_json::json!({
+            "set": {
+                "count": 7,
+                "profile.age": 57
+            },
+            "increment": {
+                "count": 8.,
+            },
+            "append": null,
+            "prepend": {
+                "likes": ["julie"]
+            },
+            "delete": null
+        });
 
-        let mut increment_section = HashMap::<Key, i32>::new();
-        increment_section.insert("count".into(), 8);
-
-        let mut prepend_section = HashMap::<Key, Vec<JsonValue>>::new();
-        prepend_section.insert("likes".into(), vec!["julie".into()]);
-
-        let expected_target = serde_json::to_value(UpdatesSchema {
-            set: Some(set_section),
-            increment: Some(increment_section),
-            append: None,
-            prepend: Some(prepend_section),
-            delete: None,
-        })
-        .expect("Convert UpdatesSchema to JSON failed");
-
-        // Compare
         assert_eq!(target, expected_target);
     }
 }

@@ -2,6 +2,8 @@
 
 use deta_rust::{
     database::{
+        models::FetchItems,
+        query::{Condition, Query},
         updates::{Action, Updates},
         Database,
     },
@@ -54,10 +56,17 @@ async fn setup_items() {
         SampleModel {
             key: TEST_KEY.into(),
             sample_field: "field1_val".into(),
+            some_field_2: 0,
         },
         SampleModel {
             key: "".into(),
             sample_field: "another_field1_val".into(),
+            some_field_2: 10,
+        },
+        SampleModel {
+            key: "".into(),
+            sample_field: "yet_another_field1_val".into(),
+            some_field_2: -10,
         },
     ];
 
@@ -72,6 +81,7 @@ struct SampleModel {
     key: String,
 
     sample_field: String,
+    some_field_2: i32,
 }
 
 // ---------- TESTS ----------
@@ -122,6 +132,7 @@ async fn insert_item() {
     let item = SampleModel {
         key: "".into(),
         sample_field: "field_value".into(),
+        some_field_2: 0,
     };
     DATABASE.insert_item(&item).await.unwrap();
     clean().await;
@@ -135,6 +146,7 @@ async fn insert_item_with_existent_key() {
     let item = SampleModel {
         key: TEST_KEY.into(),
         sample_field: "field_value".into(),
+        some_field_2: 0,
     };
     DATABASE.insert_item(&item).await.expect("Error occurred");
     clean().await;
@@ -155,16 +167,55 @@ async fn fetch_items() {
 #[serial]
 async fn fetch_items_with_query() {
     setup_items().await;
-    let query = [json!({
-        "sample_field": "field1_val"
-    })];
 
-    let res = DATABASE
-        .fetch_items::<SampleModel>(None, None, Some(&query))
-        .await
-        .unwrap();
+    async fn make_fetch(query: Query) -> FetchItems<SampleModel> {
+        DATABASE
+            .fetch_items::<SampleModel>(None, None, Some(query))
+            .await
+            .unwrap()
+    }
 
-    assert_eq!(res.items.len(), 1);
+    // Test for several queries
+
+    let query = Query::init().on("sample_field", Condition::equal("field1_val"));
+    assert_eq!(make_fetch(query).await.items.len(), 1);
+
+    let query = Query::init().on("some_field_2", Condition::equal(10));
+    assert_eq!(make_fetch(query).await.items.len(), 1);
+
+    let query = Query::init().on("sample_field", Condition::not_equal("field1_val"));
+    assert_eq!(make_fetch(query).await.items.len(), 2);
+
+    let query = Query::init().on("some_field_2", Condition::greater_than(9));
+    assert_eq!(make_fetch(query).await.items.len(), 1);
+
+    let query = Query::init().on("some_field_2", Condition::less_than(5));
+    assert_eq!(make_fetch(query).await.items.len(), 2);
+
+    let query = Query::init().on("some_field_2", Condition::greater_than_or_equal(10));
+    assert_eq!(make_fetch(query).await.items.len(), 1);
+
+    let query = Query::init().on("some_field_2", Condition::less_than_or_equal(0));
+    assert_eq!(make_fetch(query).await.items.len(), 2);
+
+    let query = Query::init().on("sample_field", Condition::prefix("another"));
+    assert_eq!(make_fetch(query).await.items.len(), 1);
+
+    let query = Query::init().on("some_field_2", Condition::range(-10, 0));
+    assert_eq!(make_fetch(query).await.items.len(), 2);
+
+    let query = Query::init().on("sample_field", Condition::contains("yet"));
+    assert_eq!(make_fetch(query).await.items.len(), 1);
+
+    let query = Query::init().on("sample_field", Condition::not_contains("yet"));
+    assert_eq!(make_fetch(query).await.items.len(), 2);
+
+    let query = Query::init()
+        .on("sample_field", Condition::not_contains("yet"))
+        .either()
+        .on("some_field_2", Condition::greater_than(-100));
+
+    assert_eq!(make_fetch(query).await.items.len(), 3);
 
     clean().await;
 }

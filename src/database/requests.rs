@@ -64,7 +64,7 @@ pub async fn query_items_request(
     x_api_key: &str,
     limit: Option<u32>,
     last: Option<&str>,
-    query: Option<&[serde_json::Value]>,
+    query: Option<serde_json::Value>,
 ) -> Result<reqwest::Response> {
     let request = reqwest::Client::new()
         .post(format!("{}/query", base_url))

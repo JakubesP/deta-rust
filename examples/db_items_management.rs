@@ -7,9 +7,9 @@
 use deta_rust::{
     database::{
         self,
+        query::{Condition, Query},
         updates::{Action, Updates},
     },
-    serde_json::json,
     DetaClient,
 };
 use serde::{Deserialize, Serialize};
@@ -61,9 +61,16 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("UpdateItem<SampleDbModel>: {:#?}", update_result);
 
     // Fetch
+    let query = Query::init()
+        .on("some_field", Condition::prefix("Some"))
+        .either()
+        .on("some_field", Condition::prefix("Another"));
+
     let query_result = database
-        .fetch_items::<SampleDbModel>(None, None, Some(&[json!({ "some_field?pfx": "Another" })]))
+        .fetch_items::<SampleDbModel>(None, None, Some(query))
         .await?;
+
+    assert_eq!(query_result.items.len(), 2);
 
     println!("FetchItems<SampleDbModel>: {:#?}", query_result);
 
