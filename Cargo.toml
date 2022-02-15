@@ -1,6 +1,6 @@
 [package]
 name = "deta_rust"
-version = "0.2.1"
+version = "0.3.1"
 authors = ["Jakub Padlo"]
 edition = "2021"
 description = "The unofficial Deta SDK for Rust lang"
